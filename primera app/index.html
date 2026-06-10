@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de personajes con API</title>
+    <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+    <h1>Buscador de Personajes</h1>
+
+    <div class="buscodor-box">
+        <input type="text" id="nombreInput" placeholder="Ej: pikachu o charizard">
+        <button onclick="buscarPersonaje()">Buscar</button>
+    </div>
+
+    <div class="tarjeta" id="tarjetaResultado">
+        <h2 id="nombrePersonaje">Nombre</h2>
+        <img id="imgPersonaje" src="" alt="Imagen del personaje">
+        <p>Numero de Pokédex: <span id="idPersonaje">#</span></p>
+        <p><span class="tipo" id="tipoPersonaje">Tipo</span></p>
+    </div>
+
+    <script>
+        async function buscarPersonaje() {
+    // 1. Agarramos lo que el usuario escribió en el input y lo pasamos a minúsculas
+    const nombre = document.getElementById("nombreInput").value.toLowerCase();
+    
+    // Si el usuario no escribió nada, salimos
+    if (nombre === "") {
+        alert("Por favor, escribí un nombre.");
+        return;
+    }
+
+    // 2. Definimos la URL de la API con el nombre que queremos buscar
+    const url = `https://pokeapi.co/api/v2/pokemon/${nombre}`;
+
+    try {
+        // 3. Hacemos el "Fetch" (el pedido por internet a la API)
+        const respuesta = await fetch(url);
+
+        // Si la API responde que no encontró nada (Error 404)
+        if (!respuesta.ok) {
+            alert("No se encontró el personaje. ¡Revisá si está bien escrito!");
+            return;
+        }
+
+        // 4. Transformamos la respuesta en un formato legible (JSON)
+        const datos = await respuesta.json();
+
+        // 5. Inyectamos los datos recibidos de la API en nuestro HTML
+        document.getElementById("nombrePersonaje").innerText = datos.name.toUpperCase();
+        document.getElementById("imgPersonaje").src = datos.sprites.front_default;
+        document.getElementById("idPersonaje").innerText = `#${datos.id}`;
+        document.getElementById("tipoPersonaje").innerText = datos.types[0].type.name;
+
+        // 6. Hacemos visible la tarjeta que estaba oculta
+        document.getElementById("tarjetaResultado").style.display = "block";
+
+    } catch (error) {
+        // Por si se corta internet o falla la API
+        console.error("Error al conectar con la API:", error);
+    }
+}
+    </script>
+</body>
+</html>
